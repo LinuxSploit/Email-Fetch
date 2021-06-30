@@ -47,8 +47,17 @@ func getemails(url string) {
 
 var wg sync.WaitGroup
 
+type domains []string
+
+func (d *domains) append(url string) {
+	*d = append(*d, url)
+}
+func bestconcurrencyvalue() {
+	//under development
+
+}
 func main() {
-	var domains []string
+	var domains domains
 
 	/////////////FLAG
 	if len(os.Args) < 2 || os.Args[1] == "-h" || os.Args[1] == "--help" {
@@ -66,7 +75,7 @@ func main() {
 	/////////////STDIN
 	scanoye := bufio.NewScanner(os.Stdin)
 	for scanoye.Scan() {
-		domains = append(domains, scanoye.Text())
+		domains.append(scanoye.Text())
 	}
 	len := len(domains)
 	/////////////CONCURRENCY-VALUE-CHECK
