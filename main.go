@@ -44,18 +44,10 @@ func getemails(url string) {
 
 	return
 }
-func currrnt(d []string) {
-	for _, x := range d {
-		wg.Add(1)
-		go getemails(x)
-	}
-	wg.Wait()
-}
 
 var wg sync.WaitGroup
 
 func main() {
-	started := time.Now()
 	var domains []string
 
 	/////////////FLAG
@@ -76,18 +68,31 @@ func main() {
 	for scanoye.Scan() {
 		domains = append(domains, scanoye.Text())
 	}
-
+	len := len(domains)
 	/////////////CONCURRENCY-VALUE-CHECK
-	if concurrnt < 2 || concurrnt > len(domains) {
+	if concurrnt < 2 || concurrnt > len {
 		concurrnt = 1
 	}
+	started := time.Now()
 
 	/////////////
-	for x := 0; x < len(domains); x = x + concurrnt {
-		if x == ((len(domains) / concurrnt) * concurrnt) {
-			currrnt(domains[x:len(domains)])
+	for x := 0; x < len; x = x + concurrnt {
+		if x == ((len / concurrnt) * concurrnt) {
+			///
+			for _, x := range domains[x:len] {
+				wg.Add(1)
+				go getemails(x)
+			}
+			wg.Wait()
+			///
 		} else {
-			currrnt(domains[x : x+concurrnt])
+			///
+			for _, x := range domains[x : x+concurrnt] {
+				wg.Add(1)
+				go getemails(x)
+			}
+			wg.Wait()
+			///
 		}
 	}
 	fmt.Println(time.Since(started))
