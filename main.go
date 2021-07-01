@@ -17,13 +17,12 @@ func getemails(url string) {
 
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Println("connection error: ", url)
 		return
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
 	if err != nil {
-		fmt.Println("unable to read response body: ", url)
 		return
 	}
 	bodystr := string(body)
@@ -52,13 +51,16 @@ type domains []string
 func (d *domains) append(url string) {
 	*d = append(*d, url)
 }
+func (d *domains) empty() {
+	*d = []string{}
+}
 func bestconcurrencyvalue() {
 	//under development
 
 }
 func main() {
 	var domains domains
-
+	var v int
 	/////////////FLAG
 	if len(os.Args) < 2 || os.Args[1] == "-h" || os.Args[1] == "--help" {
 		fmt.Printf("usage: %v <concurrency>\n", os.Args[0])
@@ -86,7 +88,8 @@ func main() {
 
 	/////////////
 	for x := 0; x < len; x = x + concurrnt {
-		if x == ((len / concurrnt) * concurrnt) {
+		v = ((len / concurrnt) * concurrnt)
+		if x == v {
 			///
 			for _, x := range domains[x:len] {
 				wg.Add(1)
@@ -94,7 +97,7 @@ func main() {
 			}
 			wg.Wait()
 			///
-		} else {
+		} else if x != v {
 			///
 			for _, x := range domains[x : x+concurrnt] {
 				wg.Add(1)
@@ -104,6 +107,6 @@ func main() {
 			///
 		}
 	}
-	fmt.Println(time.Since(started))
+	fmt.Println(" time: ", time.Since(started))
 	/////////////
 }
